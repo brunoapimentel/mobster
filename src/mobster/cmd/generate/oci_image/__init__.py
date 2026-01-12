@@ -32,6 +32,7 @@ from mobster.cmd.generate.oci_image.contextual_sbom.contextualize import (
     map_parent_to_component_and_modify_component,
 )
 from mobster.cmd.generate.oci_image.cyclonedx_wrapper import CycloneDX1BomWrapper
+from mobster.cmd.generate.oci_image.hermeto_filter import filter_hermeto_sbom_by_arch
 from mobster.cmd.generate.oci_image.spdx_utils import (
     normalize_and_load_sbom,
 )
@@ -213,6 +214,12 @@ class GenerateOciImageCommand(GenerateCommandWithOutputTypeSelector):
         LOGGER.debug("Generating SBOM document for OCI image")
 
         merged_sbom_dict = await self._handle_bom_inputs()
+
+        if self.cli_args.filter_hermeto_sbom_by_arch:
+            merged_sbom_dict = filter_hermeto_sbom_by_arch(
+                merged_sbom_dict, self.cli_args.filter_hermeto_sbom_by_arch
+            )
+
         sbom: Document | CycloneDX1BomWrapper
         image_arch = identify_arch()
 
